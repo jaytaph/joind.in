@@ -180,7 +180,7 @@ Click here to view it: %stalk/view/%s
 		
 		if(!$admins){ 
 			$this->CI->load->model('event_model');
-			$this->CI->event_model->getEventAdmins($eid); 
+			$admins = $this->CI->event_model->getEventAdmins($eid);
 		}
 		
 		$msg=sprintf("
