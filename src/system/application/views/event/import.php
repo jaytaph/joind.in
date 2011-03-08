@@ -14,3 +14,5 @@
     $this->load->view('event/_import_upload');
   endif;
 ?>
+
+<script type="text/javascript" src="/inc/js/event.js"></script>

@@ -1,8 +1,17 @@
+$('.check-import').click(function(e) {
+    e.preventDefault();
+    if ($(this).hasClass('all')) {
+        checkSelection("holdingform", true);
+    } else if ($(this).hasClass('none')) {
+        checkSelection("holdingform", false);
+    } else {
+        toggleSelection("holdingform");
+    }
+});
 
 if(!JI_event){ var JI_event = {} }
 
 JI_event = function (){
-	
 	var _deleteEventComment = function(){
 		$('.delete-evt-commment').live('click',function(){
 			var p		= this.id.split('_');
