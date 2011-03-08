@@ -146,6 +146,7 @@ class Csvimport {
             }
 		}
         $talk_data['lang_name'] = $this->_languages[$talk_data['lang']]->lang_name;
+        $talk_data['lang_id'] = $this->_languages[$talk_data['lang']]->ID;
 
 		// handle date and time, this requires event tz to be set correctly
 		
@@ -202,19 +203,13 @@ class Csvimport {
 
 
     public function commitTalk($row){
-        print "Committing talk: ".$row['talk_title']." on event ".$row['event_id']."<br>";
-
-        print "<pre>";
-        var_dump ($row);
-        print "</pre>";
-
         $talk_data = array();
         $talk_data['talk_title'] = $row['talk_title'];
         $talk_data['slides_link'] = '';
         $talk_data['event_id'] = $row['event_id'];
         $talk_data['talk_desc'] = trim($row['talk_desc']);
         $talk_data['active'] = 1;
-        $talk_data['lang'] = $row['lang'];
+        $talk_data['lang'] = $row['lang_id'];
         $talk_data['date_given'] = $row['date_given'];
 
         // save talk detail
@@ -230,7 +225,7 @@ class Csvimport {
         // Insert category
         $result = $this->CI->db->insert('talk_cat',array("talk_id" => $talk_id, "cat_id" => $row['cat_id']));
         if ($result === false) {
-            $this->_rollback("error_category", $talk_id);
+            $this->_rollbackTalk("error_category", $talk_id);
             return false;
         }
 
@@ -238,7 +233,7 @@ class Csvimport {
         foreach($row['speakers'] as $speaker) {
             $result = $this->CI->db->insert('talk_speaker', array("talk_id" => $talk_id, "speaker_name" => $speaker));
             if ($result === false) {
-                $this->_rollback("error_speaker", $talk_id);
+                $this->_rollbackTalk("error_speaker", $talk_id);
                 return false;
             }
         }
@@ -247,7 +242,7 @@ class Csvimport {
         foreach ($row['tracks'] as $track) {
             $result = $this->CI->db->insert('talk_track',array("talk_id" => $talk_id, "track_id" => $track['track_id']));
             if ($result === false) {
-                $this->_rollback("error_track", $talk_id);
+                $this->_rollbackTalk("error_track", $talk_id);
                 return false;
             }
         }
@@ -270,10 +265,10 @@ class Csvimport {
                 $this->CI->db->delete('talk_speaker', array('talk_id' => $talk_id));
                 // fall through
             case "error_category" :
-                $this->CI->db->delete('talks_cat', array('talk_id' => $talk_id));
+                $this->CI->db->delete('talk_cat', array('talk_id' => $talk_id));
                 // fall through
             case "error_talk" :
-                $this->CI->db->delete('talks', array('talk_id' => $talk_id));
+                $this->CI->db->delete('talks', array('ID' => $talk_id));
         }
     }
 }

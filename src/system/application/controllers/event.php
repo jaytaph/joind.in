@@ -1488,12 +1488,16 @@ class Event extends Controller
             // Ready to commit our talks
 
             // Default message to show
-            $msg = 'Import Successful! All is done...';
+            $msg = '';
 
             // Read the data to a temporary file
             $tmpfile = sys_get_temp_dir().'/ji_import_'.$ci->session->userdata('session_id');
             $talks = @unserialize(file_get_contents($tmpfile));
+            if (! is_array($talks)) {
+                $talks = array();
+            }
 
+            // Make sure we have at least an empty array
             if (! isset ($_POST['talk'])) {
                 $_POST['talk'] = array();
             }
@@ -1501,20 +1505,25 @@ class Event extends Controller
             foreach ($talks as $talk_id => $talk) {
                 // This talk is not present in the wanted-list. Remove from session
                 if (! in_array($talk_id, $_POST['talk'])) {
-                    print "Talk ".$talk_id." not found. Removing from session.<br>";
-
                     unset($talks[$talk_id]);
                     file_put_contents($tmpfile, serialize($talks));
                 } else {
                     // Talk is present, commit
                     if ($this->csvimport->commitTalk($talk)) {
-                        print "Talk ".$talk_id." committed. Removing from session.<br>";
+                        $msg .= "Item '".$talk['talk_title']."' successfully committed. <br>";
+                        // Remove from temp file
                         unset($talks[$talk_id]);
                         file_put_contents($tmpfile, serialize($talks));
                     } else {
-                        print "Talk ".$talk_id." has an error. NOT REMOVING!.<br>";
+                        $msg .= "Item '".$talk['talk_title']."' had an error NOT committing.<br>";
                     }
                 }
+            }
+
+            // Remove import file when no more talks are present
+            $tmpfile = sys_get_temp_dir().'/ji_import_'.$ci->session->userdata('session_id');
+            if (file_exists($tmpfile) && count($talks) == 0) {
+                unlink($tmpfile);
             }
 
             //send an email to the site admins when it's successful
@@ -1525,7 +1534,9 @@ class Event extends Controller
 
         // Find all talks in the holding area for the uploader
         $tmpfile = sys_get_temp_dir().'/ji_import_'.$ci->session->userdata('session_id');
-        $talks = @unserialize(file_get_contents($tmpfile));
+        if (file_exists($tmpfile)) {
+            $talks = @unserialize(file_get_contents($tmpfile));
+        }
 
         if (! is_array($talks)) $talks = array();
 
