@@ -1471,26 +1471,66 @@ class Event extends Controller
         $error_msg  = null;
         $evt_detail = $this->em->getEventDetail($id);
 
+        $ci = &get_instance();
+
         if (!empty($_POST) && $this->upload->do_upload('xml_file')) {
             // The file's there, lets run our import
             $updata = $this->upload->data();
             $p      = $config['upload_path'] . '/' . $updata['file_name'];
             try {
-                $this->csvimport->import($p, $id);
-                $msg = 'Import Successful! <a href="/event/view/' . $id .
-                    '">View event</a>';
-
-                //send an email to the site admins when it's successful
-                $this->sendemail->sendSuccessfulImport($id, $evt_detail);
+                $this->csvimport->import($p, $id, $this->user_model->getId());
+                $msg = 'Upload Successful! Select the talks you want to commit below.';
             } catch (Exception $e) {
                 $error_msg = 'Error: ' . $e->getMessage();
             }
             unlink($p);
+        } elseif (!empty($_POST) && isset($_POST['commit'])) {
+            // Ready to commit our talks
+
+            // Default message to show
+            $msg = 'Import Successful! All is done...';
+
+            // Read the data to a temporary file
+            $tmpfile = sys_get_temp_dir().'/ji_import_'.$ci->session->userdata('session_id');
+            $talks = @unserialize(file_get_contents($tmpfile));
+
+            if (! isset ($_POST['talk'])) {
+                $_POST['talk'] = array();
+            }
+
+            foreach ($talks as $talk_id => $talk) {
+                // This talk is not present in the wanted-list. Remove from session
+                if (! in_array($talk_id, $_POST['talk'])) {
+                    print "Talk ".$talk_id." not found. Removing from session.<br>";
+
+                    unset($talks[$talk_id]);
+                    file_put_contents($tmpfile, serialize($talks));
+                } else {
+                    // Talk is present, commit
+                    if ($this->csvimport->commitTalk($talk)) {
+                        print "Talk ".$talk_id." committed. Removing from session.<br>";
+                        unset($talks[$talk_id]);
+                        file_put_contents($tmpfile, serialize($talks));
+                    } else {
+                        print "Talk ".$talk_id." has an error. NOT REMOVING!.<br>";
+                    }
+                }
+            }
+
+            //send an email to the site admins when it's successful
+            $this->sendemail->sendSuccessfulImport($id, $evt_detail);
         } else {
             $error_msg = $this->upload->display_errors();
         }
 
+        // Find all talks in the holding area for the uploader
+        $tmpfile = sys_get_temp_dir().'/ji_import_'.$ci->session->userdata('session_id');
+        $talks = @unserialize(file_get_contents($tmpfile));
+
+        if (! is_array($talks)) $talks = array();
+
         $arr = array(
+            'talks'     => $talks,
             'details'   => $evt_detail,
             'msg'       => $msg,
             'error_msg' => $error_msg

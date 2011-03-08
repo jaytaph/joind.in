@@ -329,6 +329,29 @@ function setStars(rate){
 	$('.rating .star').eq(rate-1).click();
 }
 
+
+function toggleSelection(form) {
+    if (!document.getElementById){ return; }
+    if (!document.getElementsByTagName){ return; }
+    var inputs = document.getElementById(form).getElementsByTagName("input");
+    for(var x=0; x < inputs.length; x++) {
+        if (inputs[x].type == 'checkbox'){
+            inputs[x].checked = !inputs[x].checked;
+        }
+    }
+}
+
+function checkSelection(form, checked) {
+    if (!document.getElementById){ return; }
+    if (!document.getElementsByTagName){ return; }
+    var inputs = document.getElementById(form).getElementsByTagName("input");
+    for(var x=0; x < inputs.length; x++) {
+        if (inputs[x].type == 'checkbox'){
+            inputs[x].checked = checked;
+        }
+    }
+}
+
 //-------------------------
 
 /*# AVOID COLLISIONS #*/
