@@ -1982,6 +1982,23 @@ class Event extends Controller
 		$this->template->write_view('content', 'event/callforpapers', $arr);
         $this->template->render();
 	}
+
+    function timeline($pending = false) {
+        $this->load->model('event_model','eventModel');
+
+        $jsondata = json_encode($this->eventModel->getEventsOfType("all"));
+
+        $arr = array(
+            'title' => 'Timeline',
+            'subtitle' => '',
+            'events' => $jsondata
+        );
+
+        $this->template->write_view('content', 'event/timeline', $arr, true);
+        $this->template->render();
+    }
+
+
 }
 
 ?>

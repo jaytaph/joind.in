@@ -45,6 +45,7 @@ if (!empty($year) && !empty($month)) {
 </h1>
 
 <p class="filter">
+    <a href="/event/timeline">Timeline</a> |
 	<a href="/event/all">All</a> |
 	<a href="/event/hot">Hot</a> |
 	<a href="/event/upcoming">Upcoming</a> |

@@ -72,8 +72,6 @@ if(count($tracks)>0):
     );
 $tabs->addTab($tracksTab);
 endif;
-//$tabs->addTab('hello', 'hi', 'Tab Content', '#hi');
-//$tabs->addTab('hello', 'hi', 'Tab Content 2', '#hi2s');
 
 echo $tabs->setSelectedTab($tab);
 ?>

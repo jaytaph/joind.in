@@ -44,6 +44,7 @@ $route['default_controller'] = "main";
 $route['scaffolding_trigger'] = "";
 
 //$route['event/([^add|view|edit|delete])'] = 'event/cust/$1';
+$route['event/timeline']					    = 'event/timeline';
 $route['event/add']								= 'event/add';
 $route['event/pending']							= 'event/pending';
 $route['event/submit']							= 'event/submit';

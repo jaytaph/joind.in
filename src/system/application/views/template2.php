@@ -10,8 +10,17 @@ $title[] = $this->config->item('site_name');
 
 	<link media="all" rel="stylesheet" type="text/css" href="/inc/css/jquery-ui/theme/ui.all.css"/>
 	<link media="all" rel="stylesheet" type="text/css" href="/inc/css/site.css"/>
-	
-	
+
+    <script type="text/javascript">Timeline_urlPrefix = "http://static.simile.mit.edu/timeline/api-2.0/"; </script>
+    <script src="http://static.simile.mit.edu/timeline/api-2.3.0/timeline-api.js?bundle=true" type="text/javascript"></script>
+    <style type="text/css" media="screen">
+        #ji-timeline, #source { margin-top: 15px; }
+        #criteria, #ji-timeline, #source { margin-bottom: 15px; }
+        .timeline-band-layer-inner { font-size: 10px; }
+        .timeline-event-bubble-title, .timeline-event-bubble-body { color: black; }
+        .timeline-event-bubble-time { padding-top: 5px; color: #ccccc; font-size: 9px; }
+   </style>
+
 	<?php if($css){ ?>
 	<link media="all" rel="stylesheet" type="text/css" href="<?php echo $css; ?>"/>
 	<?php } ?>
