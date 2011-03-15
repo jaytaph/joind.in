@@ -118,7 +118,7 @@ class Talks_model extends Model {
 			    from
 				talk_comments tc
 			    where
-				tc.talk_id=talks.ID %s) as tavg,
+				tc.talk_id=talks.ID %s and (tc.user_id != 0 and rating != 0)) as tavg,
 			',$addl);
 			$sql=sprintf('
 				select
@@ -182,7 +182,7 @@ class Talks_model extends Model {
 						round(avg(rating)) 
 					from 
 						talk_comments 
-					where talk_id=talks.ID) as tavg,
+					where talk_id=talks.ID and (user_id != 0 and rating != 0)) as tavg,
 					(select max(date_made) from talk_comments where talk_id=talks.ID) last_comment_date
 				from
 					talks
@@ -271,6 +271,8 @@ class Talks_model extends Model {
 			ON e.ID=t.event_id
 			where
 				t.active=1
+	        and
+	            (tc.user_id != 0 and tc.rating != 0)
 			group by
 				t.ID
 			order by
@@ -316,6 +318,8 @@ class Talks_model extends Model {
 			    e.event_start > %s
 			  and
 				(ts.status != 'pending' OR ts.status is null)
+			  and
+			    (tc.user_id != 0 and tc.rating != 0)
 			group by
 			  t.ID
 			having
@@ -471,7 +475,7 @@ class Talks_model extends Model {
 		$ci->load->model('talk_speaker_model','talkSpeaker');
 		$term = mysql_real_escape_string($term);
 		
-		$this->db->select('talks.*, count(talk_comments.ID) as ccount, (select round(avg(rating)) from talk_comments where talk_id=talks.ID) as tavg, events.ID eid, events.event_name');
+		$this->db->select('talks.*, count(talk_comments.ID) as ccount, (select round(avg(rating)) from talk_comments where talk_id=talks.ID and (user_id != 0 and rating != 0)) as tavg, events.ID eid, events.event_name');
 	    $this->db->from('talks');
 	    
 	    $this->db->join('talk_comments', 'talk_comments.talk_id=talks.ID', 'left');
