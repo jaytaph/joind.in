@@ -19,16 +19,9 @@ $data=array(
 $this->load->view('event/modules/_event_buttons',$data);
 ?>
 
-<!-- google ad -->
 <p class="ad">
-    <script type="text/javascript"><!--
-    google_ad_client = "pub-2135094760032194";
-    /* 468x60, created 11/5/08 */
-    google_ad_slot = "4582459016"; google_ad_width = 468; google_ad_height = 60; //-->
-    </script>
-    <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+<?php $this->load->view('main/ads'); ?>
 </p>
-<!-- end google ad -->
 
 <?php
 $data=array(
@@ -48,19 +41,16 @@ $this->load->view('event/modules/_event_tabs',$data);
 <script type="text/javascript">
 (function($) {
 	$(document).ready(function(){
+        $('#event-tabs').joindIn_tabs();
 		<?php if (count($talks) == 0): ?>
-			window.location.hash = '#comments';
-		<?php else: ?>
+			$('a[rel=comments]').click();
+            <?php endif; ?>
 		if (window.location.hash == '#comment-form') {
-			window.location.hash = '#comments';
+			window.location.hash = '#';
+            $('a[rel=comments]').click();
 		}
-		<?php endif; ?>
-		$('#event-tabs').joindIn_tabs();
-		event.init();
 	});
 })(jQuery);
 
-$(document).ready(function(){
-	JI_event.init();
-})
+JI_event.init();
 </script>
