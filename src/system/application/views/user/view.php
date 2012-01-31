@@ -34,6 +34,9 @@ if (!empty($details[0]->twitter_username)) {
 if (!empty($pub_profile)) {
     $this->load->view('user/_public_profile', array('profile'=>$pub_profile));
 }
+if (!empty($stats)) {
+    $this->load->view('user/_stats', array('stats'=>$stats));
+}
 
 $uid=$details[0]->ID;
 

@@ -456,7 +456,8 @@ class User extends Controller
             'seckey'        => buildSecFile($reqkey),
             'sort_type'     => $sort_type,
             'pub_profile'   => $this->spm->getUserPublicProfile($uid, true),
-            'gravatar'      => $imgStr
+            'gravatar'      => $imgStr,
+            'stats'         => $this->user_model->getStats($uid),
         );
         if ($curr_user) {
             $arr['pending_evt'] = $this->uadmin->getUserTypes(

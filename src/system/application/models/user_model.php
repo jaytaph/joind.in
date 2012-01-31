@@ -344,5 +344,52 @@ class User_model extends Model {
         }
         return $results;
     }
+
+    /**
+     * Returns statistical information about the user, his talks and comments
+     */
+    function getStats($uid) {
+        $stats = new stdClass;
+
+
+        $query = $this->db->query(sprintf("SELECT COUNT(*) AS cnt FROM talk_speaker WHERE speaker_id LIKE %d", $uid));
+        $results = $query->result();
+        $stats->talks_given = isset ($results[0]) ? $results[0]->cnt : 0;
+
+        $query = $this->db->query(sprintf("SELECT COUNT(*) AS cnt FROM user_attend WHERE uid LIKE %d", $uid));
+        $results = $query->result();
+        $stats->conferences_attended = isset ($results[0]) ? $results[0]->cnt : 0;
+
+        $query = $this->db->query(sprintf("SELECT COUNT(*) AS cnt FROM talk_comments WHERE user_id LIKE %d", $uid));
+        $results = $query->result();
+        $stats->total_talk_comments = isset ($results[0]) ? $results[0]->cnt : 0;
+
+        $query = $this->db->query(sprintf("SELECT COUNT(*) AS cnt FROM event_comments WHERE user_id LIKE %d", $uid));
+        $results = $query->result();
+        $stats->total_event_comments = isset ($results[0]) ? $results[0]->cnt : 0;
+
+
+        $query = $this->db->query(sprintf("SELECT AVG(LENGTH(comment)) AS avg FROM talk_comments WHERE user_id LIKE %d", $uid));
+        $results = $query->result();
+        $stats->avg_length_per_comment = isset ($results[0]) ? $results[0]->avg : 0;
+
+        $query = $this->db->query(sprintf("SELECT AVG(rating) AS avg FROM talk_comments WHERE user_id LIKE %d", $uid));
+        $results = $query->result();
+        $stats->avg_rate_per_comment = isset ($results[0]) ? $results[0]->avg : 0;
+
+        $query = $this->db->query(sprintf("SELECT AVG(rating) AS avg FROM `talk_comments` AS tc
+                                    LEFT JOIN talk_speaker AS ts ON tc.talk_id LIKE ts.talk_id
+                                    WHERE ts.speaker_id = %d", $uid));
+        $results = $query->result();
+        $stats->avg_talk_rating = isset ($results[0]) ? $results[0]->avg : 0;
+
+        $query = $this->db->query(sprintf("SELECT COUNT(ts.talk_id)/COUNT(DISTINCT ts.talk_id) as avg FROM `talk_comments` AS tc
+                                    LEFT JOIN talk_speaker AS ts ON tc.talk_id LIKE ts.talk_id
+                                    WHERE ts.speaker_id = %d", $uid));
+        $results = $query->result();
+        $stats->avg_comment_per_talk = isset ($results[0]) ? $results[0]->avg : 0;
+
+        return $stats;
+    }
 }
 ?>
