@@ -798,6 +798,33 @@ class User extends Controller
         $this->template->write_view('content', 'user/oauth_allow', $view_data);
         $this->template->render();
     }
+
+    function badges($uid)
+    {
+        $this->load->model('badge_model');
+
+        // Check for new badges
+        $this->badge_model->checkBadges($uid);
+
+        $details   = $this->user_model->getUser($uid);
+
+        // sf the user doesn't exist, redirect!
+        if (!isset($details[0])) {
+            redirect();
+        }
+
+        // reset our UID based on what we found...
+        $uid       = $details[0]->ID;
+        $curr_user = $this->session->userdata('ID');
+
+        $arr = array(
+            'badges' => $this->badge_model->getUserBadges($uid, true),
+        );
+
+        $this->template->write_view('content', 'user/badges', $arr);
+        $this->template->render();
+    }
+
 }
 
 ?>
