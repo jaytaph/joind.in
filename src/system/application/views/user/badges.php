@@ -13,9 +13,22 @@ menu_pagetitle('Badges');
     }
 ?>
 
-    &nbsp;<span title='<?php echo $badge->description; ?>.<?php if ($badge->level_badge && $badge->earned) : ?> You are at level: <?php echo $badge->level; ?><?php endif;?>' style='<?php echo $style;?>'>&nbsp;<?php echo $badge->name; ?>
-<?php if ($badge->level_badge && $badge->earned) : ?>&nbsp;(<?php echo $badge->level; ?>)<?php endif; ?>&nbsp;</span>
+    &nbsp;<span style='<?php echo $style;?>'>&nbsp;<?php echo $badge->name; ?>
+<?php if ($badge->levels && $badge->earned) : ?>&nbsp;(level <?php echo $badge->level; ?>)<?php endif; ?>&nbsp;</span>
 <?php endforeach; ?>
 </div>
 
 
+<hr>
+
+<?php foreach ($badges as $badge) : if (! $badge->earned) continue; ?>
+
+    <div class="row">
+            <h3>'<?php print $badge->name; ?>' badge</h3>
+            <?php print $badge->description; ?>
+        <?php if ($badge->levels && $badge->earned) : ?>
+            <br><br>
+            You are at level <?php echo $badge->level; ?>
+        <?php endif; ?>
+    </div>
+<?php endforeach; ?>

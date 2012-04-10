@@ -93,7 +93,7 @@ class Badge_model extends Model {
         $userBadges = $this->getUserBadges($user_id, true);
         foreach ($userBadges as $badge) {
             // We already got the badge and it's not a level badge
-            if ($badge->earned == 1 && $badge->level_badge == 0) continue;
+            if ($badge->earned == 1 && $badge->levels == 0) continue;
 
             $level = $this->_checkBadge($user_id, $badge);
             if ($level != 0) {
@@ -114,19 +114,17 @@ class Badge_model extends Model {
      * @param null $arr
      * @return int
      */
-    protected function _getLevel($i, $arr = null) {
+    protected function _getLevel($i, $levels) {
         if ($i == 0) return 0;
 
-        // Default to these levels
-        if ($arr == null) {
-            $arr = array(1, 2, 5, 10, 20, 40, 75, 100, 250, 100);
+        $ret = 0;
+        $levels = explode(",", $levels);
+        foreach ($levels as $level) {
+            $level = trim($level);
+            list ($tmp_level, $tmp_items) = explode(":", $level);
+            if ($i >= $tmp_items) $ret = $tmp_level;
         }
-
-        $level = 0;
-        foreach ($arr as $v) {
-            if ($i >= $v) $level++;
-        }
-        return $level;
+        return $ret;
     }
 
 
@@ -140,7 +138,7 @@ class Badge_model extends Model {
     protected function _checkBadge($user_id, $badge) {
         $method = "_checkBadge_".strtolower(str_replace(" ", "", $badge->name));
         if (method_exists($this, $method)) {
-            return call_user_func(array($this, $method), $user_id);
+            return call_user_func(array($this, $method), $user_id, $badge);
         }
         return false;
     }
@@ -152,60 +150,60 @@ class Badge_model extends Model {
      *
      */
 
-    protected function _checkBadge_newbie ($user_id) {
+    protected function _checkBadge_newbie ($user_id, $badge) {
         // This badge is always available.
         return 1;
     }
 
-    protected function _checkBadge_speaker ($user_id) {
+    protected function _checkBadge_speaker ($user_id, $badge) {
         $sql = sprintf("SELECT COUNT(*) AS cnt FROM talk_speaker WHERE speaker_id = %d", $user_id);
         $query = $this->db->query($sql);
         $result = $query->result();
 
-        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0);
+        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, $badge->levels);
     }
 
-    protected function _checkBadge_commenter ($user_id) {
+    protected function _checkBadge_commenter ($user_id, $badge) {
         $sql = sprintf("SELECT COUNT(*) AS cnt FROM talk_comments WHERE user_id = %d", $user_id);
         $query = $this->db->query($sql);
         $result = $query->result();
 
-        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0);
+        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, $badge->levels);
     }
 
-    protected function _checkBadge_conferenceadmin ($user_id) {
+    protected function _checkBadge_conferenceadmin ($user_id, $badge) {
         $sql = sprintf("SELECT COUNT(*) AS cnt FROM user_admin WHERE uid = %d AND rtype='event'", $user_id);
         $query = $this->db->query($sql);
         $result = $query->result();
 
-        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0);
+        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, $badge->levels);
     }
 
-    protected function _checkBadge_traveler ($user_id) {
+    protected function _checkBadge_traveler ($user_id, $badge) {
         $sql = sprintf("SELECT COUNT(DISTINCT e.event_tz_place) AS cnt FROM events AS e LEFT JOIN user_attend AS ua ON ua.eid = e.id WHERE ua.uid = %d", $user_id);
         $query = $this->db->query($sql);
         $result = $query->result();
 
-        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, array(3, 5, 10, 25, 50));
+        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, $badge->levels);
     }
 
-    protected function _checkBadge_worldtraveler ($user_id) {
+    protected function _checkBadge_worldtraveler ($user_id, $badge) {
         $sql = sprintf("SELECT COUNT(DISTINCT e.event_tz_cont ) AS cnt FROM events AS e LEFT JOIN user_attend AS ua ON ua.eid = e.id WHERE ua.uid = %d", $user_id);
         $query = $this->db->query($sql);
         $result = $query->result();
 
-        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, array(2,3,4,5));
+        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, $badge->levels);
     }
 
-    protected function _checkBadge_attender ($user_id) {
+    protected function _checkBadge_attender ($user_id, $badge) {
         $sql = sprintf("SELECT COUNT(*) AS cnt FROM user_attend WHERE uid = %d", $user_id);
         $query = $this->db->query($sql);
         $result = $query->result();
 
-        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0);
+        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, $badge->levels);
     }
 
-    protected function _checkBadge_socializer ($user_id) {
+    protected function _checkBadge_socializer ($user_id, $badge) {
         $sql = sprintf("SELECT COUNT(*) AS cnt FROM talk_comments AS tc
                         LEFT JOIN talk_cat AS talkcat USING(talk_id)
                         LEFT JOIN categories AS cat ON cat.ID = talkcat.cat_id
@@ -213,10 +211,10 @@ class Badge_model extends Model {
         $query = $this->db->query($sql);
         $result = $query->result();
 
-        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0);
+        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, $badge->levels);
     }
 
-    protected function _checkBadge_workshop ($user_id) {
+    protected function _checkBadge_workshop ($user_id, $badge) {
         $sql = sprintf("SELECT COUNT(*) AS cnt FROM talk_comments AS tc
                         LEFT JOIN talk_cat AS talkcat USING(talk_id)
                         LEFT JOIN categories AS cat ON cat.ID = talkcat.cat_id
@@ -224,7 +222,7 @@ class Badge_model extends Model {
         $query = $this->db->query($sql);
         $result = $query->result();
 
-        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0);
+        return $this->_getLevel(isset ($result[0]) ? $result[0]->cnt : 0, $badge->levels);
     }
 
 }

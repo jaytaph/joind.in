@@ -15,12 +15,12 @@
 //    define("COUNT_TALK_COMMENTS",    50);
 
 //    // Medium: enough for development purposes without stressing out your DB
-    define("COUNT_USERS",            25);
-    define("COUNT_EVENTS",           50);
-    define("COUNT_EVENT_COMMENTS",  200);
-    define("COUNT_TRACKS",           75);
-    define("COUNT_TALKS",           200);
-    define("COUNT_TALK_COMMENTS",   500);
+//    define("COUNT_USERS",            25);
+//    define("COUNT_EVENTS",           50);
+//    define("COUNT_EVENT_COMMENTS",  200);
+//    define("COUNT_TRACKS",           75);
+//    define("COUNT_TALKS",           200);
+//    define("COUNT_TALK_COMMENTS",   500);
 
 //    // Heavy: simulates current production values I think
 //    define("COUNT_USERS",            200);
@@ -32,12 +32,12 @@
 
     // Massive: simulates stressed out database and application. Nice to check the bottlenecks.
     // Don't run these settings without +512MB of php-mem, a fast system and a crucifix.
-//    define("COUNT_USERS",            5000);
-//    define("COUNT_EVENTS",          12500);
-//    define("COUNT_EVENT_COMMENTS",  25000);
-//    define("COUNT_TRACKS",          16000);
-//    define("COUNT_TALKS",           50000);
-//    define("COUNT_TALK_COMMENTS",  250000);
+    define("COUNT_USERS",            5000);
+    define("COUNT_EVENTS",          12500);
+    define("COUNT_EVENT_COMMENTS",  25000);
+    define("COUNT_TRACKS",          16000);
+    define("COUNT_TALKS",           50000);
+    define("COUNT_TALK_COMMENTS",  250000);
 
 
 
