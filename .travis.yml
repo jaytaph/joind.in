@@ -3,3 +3,8 @@ phps:
   - 5.2
 notifications:
   irc: "irc.freenode.org#jitt"
+  email:
+    - jthijssen@noxlogic.nl
+branches:
+  except:
+    - master
